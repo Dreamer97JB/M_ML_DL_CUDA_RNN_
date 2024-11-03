@@ -1,3 +1,8 @@
+# Equipo utilizado para construir esta imagen de Docker:
+# CPU: AMD Ryzen 7 5800H with Radeon Graphics, 8 núcleos, 16 hilos
+# RAM: 16 GB (164383872768 bytes)
+# GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version: 12.7
+
 # Imagen base de CUDA 12.6 con Ubuntu 24.04
 FROM nvidia/cuda:12.6.1-base-ubuntu24.04
 
@@ -10,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    nvidia-utils-530 \
     git \
     vim \
     curl \
@@ -21,7 +27,7 @@ RUN python3 -m venv /opt/venv
 # Activar el entorno virtual e instalar PyTorch con soporte para GPU y CUDA 11.8
 RUN /opt/venv/bin/pip install --upgrade pip \
     && /opt/venv/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
-    && /opt/venv/bin/pip install nltk spacy transformers
+    && /opt/venv/bin/pip install nltk spacy transformers jupyter  # <--- Aquí se agrega Jupyter
 
 # Descargar datos adicionales de NLTK y spaCy
 RUN /opt/venv/bin/python -m nltk.downloader punkt stopwords
@@ -39,4 +45,3 @@ COPY Dataset/grupo8_dataset.csv /workspace/Dataset/grupo8_dataset.csv
 
 # Comando por defecto al iniciar el contenedor
 CMD ["/bin/bash"]
-
