@@ -27,7 +27,7 @@ RUN python3 -m venv /opt/venv
 # Activar el entorno virtual e instalar PyTorch con soporte para GPU y CUDA 11.8
 RUN /opt/venv/bin/pip install --upgrade pip \
     && /opt/venv/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
-    && /opt/venv/bin/pip install nltk spacy transformers jupyter  # <--- Aquí se agrega Jupyter
+    && /opt/venv/bin/pip install nltk spacy transformers jupyter pandas numpy  
 
 # Descargar datos adicionales de NLTK y spaCy
 RUN /opt/venv/bin/python -m nltk.downloader punkt stopwords
