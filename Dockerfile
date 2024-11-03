@@ -3,14 +3,14 @@
 # RAM: 16 GB (164383872768 bytes)
 # GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version: 12.7
 
-# Imagen base de CUDA 12.6 con Ubuntu 24.04
-FROM nvidia/cuda:12.6.1-base-ubuntu24.04
+# Imagen base con CUDA 11.8 y Ubuntu 22.04
+FROM nvidia/cuda:11.8.0-base-ubuntu22.04
 
-# Configurar zona horaria a UTC-5 (Guayaquil)
+# Configurar zona horaria
 ENV TZ="America/Guayaquil"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Actualizar paquetes y añadir dependencias
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -19,29 +19,38 @@ RUN apt-get update && apt-get install -y \
     git \
     vim \
     curl \
+    gfortran \
+    libopenblas-dev \
+    liblapack-dev \
+    build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Crear un entorno virtual para evitar problemas con el entorno gestionado externamente
+# Crear y activar el entorno virtual
 RUN python3 -m venv /opt/venv
 
-# Activar el entorno virtual e instalar PyTorch con soporte para GPU y CUDA 11.8
-RUN /opt/venv/bin/pip install --upgrade pip \
-    && /opt/venv/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
-    && /opt/venv/bin/pip install nltk spacy transformers jupyter pandas numpy  
+# Actualizar pip y setuptools
+RUN /opt/venv/bin/pip install --upgrade pip setuptools
 
-# Descargar datos adicionales de NLTK y spaCy
+# Instalar numpy, scipy y Cython
+RUN /opt/venv/bin/pip install numpy scipy cython
+
+# Instalar la última versión de scikit-learn compatible
+RUN /opt/venv/bin/pip install scikit-learn
+
+# Instalar torch y otros paquetes (usando cu118 para CUDA 11.8)
+RUN /opt/venv/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Instalar otros paquetes necesarios
+RUN /opt/venv/bin/pip install tensorflow nltk spacy transformers jupyter \
+    pandas matplotlib seaborn wordcloud gensim regex tqdm
+
+# Descargar datos adicionales para NLP
 RUN /opt/venv/bin/python -m nltk.downloader punkt stopwords
 RUN /opt/venv/bin/python -m spacy download en_core_web_sm
 RUN /opt/venv/bin/python -m spacy download es_core_news_sm
 
-# Establecer el directorio de trabajo
+# Configurar directorio de trabajo y PATH
 WORKDIR /workspace
-
-# Activar el entorno virtual automáticamente al iniciar el contenedor
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copiar el archivo CSV al contenedor
-COPY Dataset/grupo8_dataset.csv /workspace/Dataset/grupo8_dataset.csv
-
-# Comando por defecto al iniciar el contenedor
 CMD ["/bin/bash"]
