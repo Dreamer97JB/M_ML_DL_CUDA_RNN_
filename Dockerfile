@@ -1,7 +1,7 @@
 # Equipo utilizado para construir esta imagen de Docker:
 # CPU: AMD Ryzen 7 5800H with Radeon Graphics, 8 núcleos, 16 hilos
 # RAM: 16 GB (164383872768 bytes)
-# GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version: 12.7
+# GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version 11.8
 
 # Imagen base con CUDA 11.8 y Ubuntu 22.04
 FROM nvidia/cuda:11.8.0-base-ubuntu22.04
