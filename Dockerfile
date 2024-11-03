@@ -34,6 +34,9 @@ WORKDIR /workspace
 # Activar el entorno virtual automáticamente al iniciar el contenedor
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copiar el archivo CSV al contenedor
+COPY Dataset/grupo8_dataset.csv /workspace/Dataset/grupo8_dataset.csv
+
 # Comando por defecto al iniciar el contenedor
 CMD ["/bin/bash"]
 
