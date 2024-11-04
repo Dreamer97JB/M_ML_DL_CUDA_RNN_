@@ -42,7 +42,7 @@ RUN /opt/venv/bin/pip install torch torchvision torchaudio --index-url https://d
 
 # Instalar otros paquetes necesarios
 RUN /opt/venv/bin/pip install tensorflow nltk spacy transformers jupyter \
-    pandas matplotlib seaborn wordcloud gensim regex tqdm
+    pandas matplotlib seaborn wordcloud gensim regex tqdm tensorboard
 
 # Descargar datos adicionales para NLP
 RUN /opt/venv/bin/python -m nltk.downloader punkt stopwords
@@ -53,4 +53,5 @@ RUN /opt/venv/bin/python -m spacy download es_core_news_sm
 WORKDIR /workspace
 ENV PATH="/opt/venv/bin:$PATH"
 
+# CMD predeterminado para iniciar bash
 CMD ["/bin/bash"]
