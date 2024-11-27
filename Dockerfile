@@ -4,7 +4,7 @@
 # GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version 11.8
 
 # Imagen base con CUDA 12.6 y Ubuntu 22.04
-FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
+FROM nvidia/cuda:11.2.0-runtime-ubuntu22.04
 
 # Configurar zona horaria
 ENV TZ="America/Guayaquil"
@@ -23,9 +23,11 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y libcudnn8=8.9.1.* libcudnn8-dev=8.9.1.* \
     && apt-mark hold libcudnn8 libcudnn8-dev
 
-# Variables de entorno para CUDA y cuDNN
-ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
-ENV PATH /usr/local/cuda/bin:$PATH
+# Variables adicionales para cuDNN y CUDA
+ENV CUDA_HOME=/usr/local/cuda
+ENV CUDA_PATH=/usr/local/cuda
+ENV LIBRARY_PATH=/usr/local/cuda/lib64:$LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
 
 # Crear y activar el entorno virtual
 RUN python3 -m venv /opt/venv
@@ -35,7 +37,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip setuptools wheel
 
 # Instalar TensorFlow compatible con CUDA 12.6 y NumPy compatible
-RUN pip install "tensorflow==2.14.0" "numpy<2"
+RUN pip install "tensorflow==2.6.0" "numpy<2"
 
 # Instalar paquetes de análisis y visualización
 RUN pip install pandas matplotlib seaborn scikit-learn
