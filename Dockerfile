@@ -4,7 +4,7 @@
 # GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version 11.8
 
 # Imagen base con CUDA 11.8 y Ubuntu 22.04 (runtime)
-FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
 
 # Configurar zona horaria
 ENV TZ="America/Guayaquil"
@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     build-essential \
+    python3-distutils \
+    python3-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar cuDNN 8
@@ -47,7 +49,7 @@ RUN pip install --no-cache-dir --progress-bar off --default-timeout=2000 \
     --extra-index-url https://download.pytorch.org/whl/cu118
 
 # Instalar TensorFlow compatible con CUDA 11.8
-RUN pip install tensorflow==2.13.0
+RUN pip install tensorflow==2.14.0
 
 # Instalar otros paquetes necesarios
 RUN pip install nltk spacy transformers jupyter pandas matplotlib seaborn \
