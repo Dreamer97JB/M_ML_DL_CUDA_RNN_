@@ -1,21 +1,20 @@
 # Equipo utilizado para construir esta imagen de Docker:
 # CPU: AMD Ryzen 7 5800H with Radeon Graphics, 8 núcleos, 16 hilos
-# RAM: 16 GB (164383872768 bytes)
+# RAM: 16 GB
 # GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version 11.8
 
-# Imagen base con CUDA 11.2.2 y Ubuntu 20.04
-FROM nvidia/cuda:11.2.2-base-ubuntu20.04
+# Imagen base con CUDA 11.8 y Ubuntu 22.04 (runtime)
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
 
 # Configurar zona horaria
 ENV TZ="America/Guayaquil"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema (sin nvidia-utils-530)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    nvidia-utils-530 \
     git \
     vim \
     curl \
@@ -23,42 +22,48 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     build-essential \
-    libcudnn8=8.1.* libcudnn8-dev=8.1.* \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Instalar cuDNN 8
+RUN apt-get update && apt-get install -y libcudnn8=8.9.1.* libcudnn8-dev=8.9.1.* \
+    && apt-mark hold libcudnn8 libcudnn8-dev
 
 # Crear y activar el entorno virtual
 RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Actualizar pip y setuptools
-RUN /opt/venv/bin/pip install --upgrade pip setuptools
+RUN pip install --upgrade pip setuptools wheel
 
 # Instalar numpy, scipy y Cython
-RUN /opt/venv/bin/pip install numpy==1.21.6 scipy==1.7.3 cython==0.29.32
+RUN pip install numpy scipy cython
 
 # Instalar scikit-learn
-RUN /opt/venv/bin/pip install scikit-learn==1.0.2
+RUN pip install scikit-learn
 
-# Instalar TensorFlow y Torch
-RUN /opt/venv/bin/pip install tensorflow==2.6.0 \
-    torch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 --index-url https://download.pytorch.org/whl/cu112
+# Instalar PyTorch con CUDA 11.8 (aumentando el tiempo de espera y limpieza)
+RUN pip install --no-cache-dir --progress-bar off --default-timeout=2000 \
+    torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2+cu118 \
+    --extra-index-url https://download.pytorch.org/whl/cu118
+
+# Instalar TensorFlow compatible con CUDA 11.8
+RUN pip install tensorflow==2.13.0
 
 # Instalar otros paquetes necesarios
-RUN /opt/venv/bin/pip install nltk==3.6.7 spacy==3.2.4 transformers==4.18.0 \
-    jupyter==1.0.0 pandas==1.3.5 matplotlib==3.5.1 seaborn==0.11.2 \
-    wordcloud==1.8.1 gensim==4.1.2 regex==2022.3.15 tqdm==4.62.3 tensorboard==2.6.0
+RUN pip install nltk spacy transformers jupyter pandas matplotlib seaborn \
+    wordcloud gensim regex tqdm tensorboard
 
 # Descargar datos adicionales para NLP
-RUN /opt/venv/bin/python -m nltk.downloader punkt stopwords
-RUN /opt/venv/bin/python -m spacy download en_core_web_sm
-RUN /opt/venv/bin/python -m spacy download es_core_news_sm
-
-# Configurar variables de entorno necesarias para CUDA
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
-ENV CUDA_HOME=/usr/local/cuda
+RUN python -m nltk.downloader punkt stopwords
+RUN python -m spacy download en_core_web_sm
+RUN python -m spacy download es_core_news_sm
 
 # Configurar directorio de trabajo y PATH
 WORKDIR /workspace
-ENV PATH="/opt/venv/bin:$PATH"
+
+# Exponer puertos para Jupyter y TensorBoard
+EXPOSE 8888
+EXPOSE 6006
 
 # CMD predeterminado para iniciar bash
 CMD ["/bin/bash"]
