@@ -4,7 +4,7 @@
 # GPU: NVIDIA GeForce RTX 3050 Ti, Driver Version: 566.03, CUDA Version 11.8
 
 # Imagen base con CUDA 12.5 y Ubuntu 22.04
-FROM nvidia/cuda:12.5.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04
 
 # Configurar zona horaria
 ENV TZ="America/Guayaquil"
@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev liblapack-dev build-essential \
     python3-distutils python3-dev \
     nvidia-utils-530 \
+    cuda-command-line-tools-12-5 \
+    libcurand-dev-12-5 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
@@ -40,10 +42,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip setuptools wheel
 
 # Instalar TensorFlow 2.16.1 compatible con CUDA 12.5 y cuDNN 8.9
-RUN pip install --force-reinstall "tensorflow==2.16.1" 
+RUN pip install "tensorflow==2.16.1" 
 
 # Instalar paquetes de análisis y visualización
-RUN pip install pandas matplotlib seaborn scikit-learn nltk spacy transformers wordcloud gensim regex tqdm tensorboard
+RUN pip install pandas matplotlib seaborn scikit-learn nltk spacy transformers wordcloud gensim regex tqdm tensorboard scikeras
 
 # Instalar Jupyter Notebook
 RUN pip install jupyter
