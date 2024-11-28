@@ -45,6 +45,9 @@ RUN pip install --force-reinstall "tensorflow==2.16.1"
 # Instalar paquetes de análisis y visualización
 RUN pip install pandas matplotlib seaborn scikit-learn nltk spacy transformers wordcloud gensim regex tqdm tensorboard
 
+# Instalar Jupyter Notebook
+RUN pip install jupyter
+
 # Remove the duplicate NumPy installation and use a single, explicit install
 RUN pip install "numpy==1.26.4" --force-reinstall
 
