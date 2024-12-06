@@ -15,7 +15,7 @@ RUN pip install --upgrade pip
 
 # Install essential Python libraries for data science and machine learning
 # Removed tensorflow.keras as it is part of TensorFlow
-RUN pip install numpy pandas matplotlib seaborn scikit-learn regex nltk scikeras
+RUN pip install numpy pandas matplotlib seaborn scikit-learn regex nltk scikeras gensim optuna
 
 # Download additional data for NLTK
 RUN python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
